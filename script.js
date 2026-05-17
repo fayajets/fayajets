@@ -143,18 +143,24 @@ Sent via Fayajets Website
   // 3. OPEN WHATSAPP (new tab)
   // =============================================
   const encodedWA = encodeURIComponent(waMessage);
-  const waURL = `https://wa.me/233240299171?text=${encodedWA}`;
+  const waURL = 'https://wa.me/233240299171?text=' + encodedWA;
   window.open(waURL, '_blank');
 
   // =============================================
-  // 4. OPEN EMAIL CLIENT (slight delay so both open)
+  // 4. OPEN EMAIL CLIENT
+  // Use a hidden <a> click — does NOT navigate away from the page
   // =============================================
-  setTimeout(() => {
+  setTimeout(function() {
     const encodedSubject = encodeURIComponent(emailSubject);
     const encodedBody    = encodeURIComponent(emailBody);
-    const mailtoURL = `mailto:fayajets@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
-    window.location.href = mailtoURL;
-  }, 800); // 800ms delay so WhatsApp tab opens first
+    const mailtoURL = 'mailto:fayajets@gmail.com?subject=' + encodedSubject + '&body=' + encodedBody;
+    var mailLink = document.createElement('a');
+    mailLink.href = mailtoURL;
+    mailLink.style.display = 'none';
+    document.body.appendChild(mailLink);
+    mailLink.click();
+    document.body.removeChild(mailLink);
+  }, 1000);
 
   // =============================================
   // 5. SHOW SUCCESS MESSAGE
@@ -234,4 +240,3 @@ function showSuccess() {
   success.scrollIntoView({ behavior: 'smooth', block: 'center' });
   setTimeout(() => success.remove(), 10000);
 }
-
