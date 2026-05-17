@@ -1,33 +1,39 @@
 /* ============================================
    FAYAJETS WEBSITE — script.js
-   Handles: Nav toggle, form submission → WhatsApp + Email
+   Form → EmailJS (auto sends to Gmail) + WhatsApp
    Location: Accra, Ghana | Hours: Mon–Fri 8AM–5PM
 ============================================ */
+
+// ---- EmailJS Credentials ----
+var EMAILJS_PUBLIC_KEY  = 'DiVbKDp-sv3uOs_-i';
+var EMAILJS_SERVICE_ID  = 'service_ycurgn1';
+var EMAILJS_TEMPLATE_ID = 'template_y798bba';
+
+// ---- Initialise EmailJS ----
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
 
 // ---- Set Footer Year ----
 document.getElementById('year').textContent = new Date().getFullYear();
 
 
 // ---- Mobile Navigation Toggle ----
-const hamburger = document.getElementById('hamburger');
-const mobileMenu = document.getElementById('mobileMenu');
+var hamburger = document.getElementById('hamburger');
+var mobileMenu = document.getElementById('mobileMenu');
 
-hamburger.addEventListener('click', () => {
+hamburger.addEventListener('click', function() {
   hamburger.classList.toggle('active');
   mobileMenu.classList.toggle('open');
 });
 
-// Close mobile menu when a link is clicked
-document.querySelectorAll('.mobile-link').forEach(link => {
-  link.addEventListener('click', () => {
+document.querySelectorAll('.mobile-link').forEach(function(link) {
+  link.addEventListener('click', function() {
     hamburger.classList.remove('active');
     mobileMenu.classList.remove('open');
   });
 });
 
-
-// ---- Close nav on scroll ----
-window.addEventListener('scroll', () => {
+window.addEventListener('scroll', function() {
   if (mobileMenu.classList.contains('open')) {
     hamburger.classList.remove('active');
     mobileMenu.classList.remove('open');
@@ -35,30 +41,29 @@ window.addEventListener('scroll', () => {
 });
 
 
-// ---- Bot Request Form → WhatsApp + Email ----
-const form = document.getElementById('botRequestForm');
+// ---- Bot Request Form ----
+var form = document.getElementById('botRequestForm');
 
-form.addEventListener('submit', function (e) {
-  // Prevent page reload
+form.addEventListener('submit', function(e) {
   e.preventDefault();
 
-  // --- Collect form values ---
-  const businessName  = getValue('businessName');
-  const ownerName     = getValue('ownerName');
-  const email         = getValue('email');
-  const phone         = getValue('phone');
-  const whatsapp      = getValue('whatsapp');
-  const country       = getValue('country');
-  const industry      = getValue('industry');
-  const website       = getValue('website') || 'Not provided';
-  const businessDesc  = getValue('businessDesc');
-  const chatbotGoals  = getValue('chatbotGoals');
-  const wantsWebsite  = getRadio('wantsWebsiteChatbot');
-  const wantsWhatsApp = getRadio('wantsWhatsApp');
-  const faqs          = getValue('faqs') || 'Not provided';
-  const businessHours = getValue('businessHours');
-  const language      = getValue('language');
-  const additionalInfo = getValue('additionalInfo') || 'None';
+  // --- Collect all values ---
+  var businessName   = getValue('businessName');
+  var ownerName      = getValue('ownerName');
+  var email          = getValue('email');
+  var phone          = getValue('phone');
+  var whatsapp       = getValue('whatsapp');
+  var country        = getValue('country');
+  var industry       = getValue('industry');
+  var website        = getValue('website') || 'Not provided';
+  var businessDesc   = getValue('businessDesc');
+  var chatbotGoals   = getValue('chatbotGoals');
+  var wantsWebsite   = getRadio('wantsWebsiteChatbot');
+  var wantsWhatsApp  = getRadio('wantsWhatsApp');
+  var faqs           = getValue('faqs') || 'Not provided';
+  var businessHours  = getValue('businessHours');
+  var language       = getValue('language');
+  var additionalInfo = getValue('additionalInfo') || 'None';
 
   // --- Validation ---
   if (!businessName || !ownerName || !email || !phone || !whatsapp || !country || !industry || !businessDesc || !chatbotGoals || !wantsWebsite || !wantsWhatsApp || !businessHours || !language) {
@@ -66,177 +71,126 @@ form.addEventListener('submit', function (e) {
     return;
   }
 
-  // =============================================
-  // 1. FORMAT WHATSAPP MESSAGE
-  // =============================================
-  const waMessage =
-`*New Chatbot Request — Fayajets*
-
-*Business Name:* ${businessName}
-*Owner Name:* ${ownerName}
-*Email:* ${email}
-*Phone:* ${phone}
-*WhatsApp:* ${whatsapp}
-*Country:* ${country}
-*Industry:* ${industry}
-*Website:* ${website}
-
-*Business Description:*
-${businessDesc}
-
-*Chatbot Goals:*
-${chatbotGoals}
-
-*Website Chatbot:* ${wantsWebsite}
-*WhatsApp Automation:* ${wantsWhatsApp}
-
-*Frequently Asked Questions:*
-${faqs}
-
-*Business Hours:* ${businessHours}
-*Preferred Language:* ${language}
-
-*Additional Information:*
-${additionalInfo}`;
+  // --- Disable button while sending ---
+  var submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="btn-icon">⏳</span> Sending...';
 
   // =============================================
-  // 2. FORMAT EMAIL BODY
+  // 1. SEND EMAIL VIA EMAILJS (auto to Gmail)
   // =============================================
-  const emailSubject = `New Chatbot Request from ${businessName} — Fayajets`;
+  var templateParams = {
+    business_name:   businessName,
+    owner_name:      ownerName,
+    email:           email,
+    phone:           phone,
+    whatsapp:        whatsapp,
+    country:         country,
+    industry:        industry,
+    website:         website,
+    business_desc:   businessDesc,
+    chatbot_goals:   chatbotGoals,
+    wants_website:   wantsWebsite,
+    wants_whatsapp:  wantsWhatsApp,
+    faqs:            faqs,
+    business_hours:  businessHours,
+    language:        language,
+    additional_info: additionalInfo
+  };
 
-  const emailBody =
-`New Chatbot Request — Fayajets
-================================
-
-Business Name: ${businessName}
-Owner Name: ${ownerName}
-Email: ${email}
-Phone: ${phone}
-WhatsApp: ${whatsapp}
-Country: ${country}
-Industry: ${industry}
-Website: ${website}
-
-Business Description:
-${businessDesc}
-
-Chatbot Goals:
-${chatbotGoals}
-
-Website Chatbot: ${wantsWebsite}
-WhatsApp Automation: ${wantsWhatsApp}
-
-Frequently Asked Questions:
-${faqs}
-
-Business Hours: ${businessHours}
-Preferred Language: ${language}
-
-Additional Information:
-${additionalInfo}
-
---------------------------------
-Sent via Fayajets Website
-`;
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+    .then(function() {
+      console.log('Email sent successfully');
+    })
+    .catch(function(error) {
+      console.error('EmailJS error:', error);
+    });
 
   // =============================================
-  // 3. OPEN WHATSAPP (new tab)
+  // 2. OPEN WHATSAPP with pre-filled message
   // =============================================
-  const encodedWA = encodeURIComponent(waMessage);
-  const waURL = 'https://wa.me/233240299171?text=' + encodedWA;
-  window.open(waURL, '_blank');
+  var waMessage =
+'*New Chatbot Request — Fayajets*\n\n' +
+'*Business Name:* ' + businessName + '\n' +
+'*Owner Name:* ' + ownerName + '\n' +
+'*Email:* ' + email + '\n' +
+'*Phone:* ' + phone + '\n' +
+'*WhatsApp:* ' + whatsapp + '\n' +
+'*Country:* ' + country + '\n' +
+'*Industry:* ' + industry + '\n' +
+'*Website:* ' + website + '\n\n' +
+'*Business Description:*\n' + businessDesc + '\n\n' +
+'*Chatbot Goals:*\n' + chatbotGoals + '\n\n' +
+'*Website Chatbot:* ' + wantsWebsite + '\n' +
+'*WhatsApp Automation:* ' + wantsWhatsApp + '\n\n' +
+'*Frequently Asked Questions:*\n' + faqs + '\n\n' +
+'*Business Hours:* ' + businessHours + '\n' +
+'*Preferred Language:* ' + language + '\n\n' +
+'*Additional Information:*\n' + additionalInfo;
+
+  var encodedWA = encodeURIComponent(waMessage);
+  var waLink = document.createElement('a');
+  waLink.href = 'https://api.whatsapp.com/send?phone=233240299171&text=' + encodedWA;
+  waLink.target = '_blank';
+  waLink.rel = 'noopener noreferrer';
+  document.body.appendChild(waLink);
+  waLink.click();
+  document.body.removeChild(waLink);
 
   // =============================================
-  // 4. OPEN EMAIL CLIENT
-  // Use a hidden <a> click — does NOT navigate away from the page
-  // =============================================
-  setTimeout(function() {
-    const encodedSubject = encodeURIComponent(emailSubject);
-    const encodedBody    = encodeURIComponent(emailBody);
-    const mailtoURL = 'mailto:fayajets@gmail.com?subject=' + encodedSubject + '&body=' + encodedBody;
-    var mailLink = document.createElement('a');
-    mailLink.href = mailtoURL;
-    mailLink.style.display = 'none';
-    document.body.appendChild(mailLink);
-    mailLink.click();
-    document.body.removeChild(mailLink);
-  }, 1000);
-
-  // =============================================
-  // 5. SHOW SUCCESS MESSAGE
+  // 3. SHOW SUCCESS & RESET BUTTON
   // =============================================
   showSuccess();
+
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '<span class="btn-icon">🚀</span> Submit Request';
 });
 
 
 // ---- Helper: Get input value ----
 function getValue(id) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   return el ? el.value.trim() : '';
 }
 
 // ---- Helper: Get radio value ----
 function getRadio(name) {
-  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  var checked = document.querySelector('input[name="' + name + '"]:checked');
   return checked ? checked.value : '';
 }
 
 // ---- Helper: Show error alert ----
 function showAlert(message) {
-  const existing = document.querySelector('.form-alert');
+  var existing = document.querySelector('.form-alert');
   if (existing) existing.remove();
 
-  const alert = document.createElement('div');
-  alert.className = 'form-alert form-alert--error';
-  alert.textContent = message;
-  alert.style.cssText = `
-    background: #FEF2F2;
-    border: 1px solid #FCA5A5;
-    color: #B91C1C;
-    padding: 0.9rem 1.2rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 1rem;
-    text-align: center;
-  `;
+  var alertEl = document.createElement('div');
+  alertEl.className = 'form-alert';
+  alertEl.textContent = message;
+  alertEl.style.cssText = 'background:#FEF2F2;border:1px solid #FCA5A5;color:#B91C1C;padding:0.9rem 1.2rem;border-radius:8px;font-size:0.9rem;font-weight:500;margin-bottom:1rem;text-align:center;';
 
-  const submitArea = document.querySelector('.form-submit');
-  form.insertBefore(alert, submitArea);
-
-  setTimeout(() => alert.remove(), 5000);
-  alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  var submitArea = document.querySelector('.form-submit');
+  form.insertBefore(alertEl, submitArea);
+  setTimeout(function() { alertEl.remove(); }, 5000);
+  alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // ---- Helper: Show success message ----
 function showSuccess() {
-  const existing = document.querySelector('.form-alert');
+  var existing = document.querySelector('.form-alert');
   if (existing) existing.remove();
 
-  const success = document.createElement('div');
-  success.className = 'form-alert form-alert--success';
-  success.innerHTML = `
-    <strong>✅ Request submitted!</strong><br>
-    WhatsApp is opening with your details pre-filled.
-    Your email client will also open shortly so we receive your request on both channels.
-    We'll respond within our working hours: <strong>Mon–Fri, 8AM–5PM (Accra, GMT)</strong>.
-  `;
-  success.style.cssText = `
-    background: #F0FDF4;
-    border: 1px solid #86EFAC;
-    color: #15803D;
-    padding: 1rem 1.2rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 1rem;
-    text-align: center;
-    line-height: 1.6;
-  `;
+  var success = document.createElement('div');
+  success.className = 'form-alert';
+  success.innerHTML =
+    '<strong>✅ Request submitted!</strong><br>' +
+    'Your details have been sent to our Gmail automatically. ' +
+    'WhatsApp is also opening with your message pre-filled.<br>' +
+    '<strong>We\'ll respond Mon–Fri, 8AM–5PM (Accra, GMT).</strong>';
+  success.style.cssText = 'background:#F0FDF4;border:1px solid #86EFAC;color:#15803D;padding:1rem 1.2rem;border-radius:8px;font-size:0.9rem;font-weight:500;margin-bottom:1rem;text-align:center;line-height:1.7;';
 
-  const submitArea = document.querySelector('.form-submit');
+  var submitArea = document.querySelector('.form-submit');
   form.insertBefore(success, submitArea);
-
   success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  setTimeout(() => success.remove(), 10000);
+  setTimeout(function() { success.remove(); }, 10000);
 }
